@@ -9,35 +9,37 @@ from googleapiclient.discovery import build
 # ==============================
 YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
 CHANNEL_ID = os.getenv("CHANNEL_ID")
-CHAT_ID = os.getenv("CHAT_ID")  # optional
+CHAT_ID = os.getenv("CHAT_ID")  # optional: predefined live video ID
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 TARGET_USERNAME = os.getenv("TARGET_USERNAME", "Sunshine 🌞")
+
 IST = timezone(timedelta(hours=5, minutes=30))
-# ==============================
-# 🕐 Night time check (9 PM–3 AM)
-# ==============================
-def is_night_time():
-    now = datetime.now(IST).hour
-    return now >= 21 or now < 5
+ALERT_GAP = 10  # seconds between alerts for the same user
 
 # ==============================
-# 🎥 Get live video ID (if not set)
+# 🕐 Night time check (9 PM–5 AM)
 # ==============================
-#def get_live_video_id():
-    #youtube = build("youtube", "v3", developerKey=YOUTUBE_API_KEY)
-    #req = youtube.search().list(
-     #   part="id",
-   #     channelId=CHANNEL_ID,
-      #  eventType="live",
-       # type="video"
-    #)
-  #  res = req.execute()
-   # items = res.get("items", [])
-  #  if items:
-       # return items[0]["id"]["videoId"]
-    #else:
-      #  return None
+def is_night_time():
+    now_hour = datetime.now(IST).hour
+    return now_hour >= 21 or now_hour < 5
+
+# ==============================
+# 🎥 Get live video ID from channel
+# ==============================
+def get_live_video_id():
+    youtube = build("youtube", "v3", developerKey=YOUTUBE_API_KEY)
+    req = youtube.search().list(
+        part="id",
+        channelId=CHANNEL_ID,
+        eventType="live",
+        type="video"
+    )
+    res = req.execute()
+    items = res.get("items", [])
+    if items:
+        return items[0]["id"]["videoId"]
+    return None
 
 # ==============================
 # 💬 Get live chat ID
@@ -49,9 +51,8 @@ def get_live_chat_id(video_id):
     items = res.get("items", [])
     if items:
         return items[0]["liveStreamingDetails"].get("activeLiveChatId")
-    else:
-        return None
-#
+    return None
+
 # ==============================
 # 📩 Send Telegram Message
 # ==============================
@@ -65,6 +66,7 @@ def send_telegram(msg):
 # ==============================
 def main():
     print("🚀 YouTube Chat Monitor Started")
+    last_alert_time = {}  # track last alert per user
 
     while True:
         if not is_night_time():
@@ -72,7 +74,7 @@ def main():
             time.sleep(300)
             continue
 
-        video_id = CHAT_ID #or get_live_video_id()
+        video_id = CHAT_ID or get_live_video_id()
         if not video_id:
             print("❌ No live video found")
             time.sleep(60)
@@ -95,15 +97,23 @@ def main():
                     pageToken=next_page
                 ).execute()
 
-                for item in res["items"]:
+                polling_interval = res.get("pollingIntervalMillis", 5000) / 1000  # seconds
+
+                for item in res.get("items", []):
                     author = item["authorDetails"]["displayName"]
+                    message = item["snippet"]["displayMessage"]
+                    now = time.time()
+
                     if TARGET_USERNAME.lower() in author.lower():
-                        send_telegram(f"🌞 {author} just sent a message in live chat!")
-                        alert = f"🌞 {author} sent a message:"
-                        print(alert)
+                        last_time = last_alert_time.get(author, 0)
+                        if now - last_time >= ALERT_GAP:
+                            alert_text = f"🌞 {author} sent a message: {message}"
+                            send_telegram(alert_text)
+                            print(alert_text)
+                            last_alert_time[author] = now
 
                 next_page = res.get("nextPageToken")
-                time.sleep(10)
+                time.sleep(polling_interval)
             except Exception as e:
                 print("⚠️ Error:", e)
                 time.sleep(30)
