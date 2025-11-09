@@ -24,34 +24,34 @@ def is_night_time():
 # ==============================
 # 🎥 Get live video ID (if not set)
 # ==============================
-def get_live_video_id():
-    youtube = build("youtube", "v3", developerKey=YOUTUBE_API_KEY)
-    req = youtube.search().list(
-        part="id",
-        channelId=CHANNEL_ID,
-        eventType="live",
-        type="video"
-    )
-    res = req.execute()
-    items = res.get("items", [])
-    if items:
-        return items[0]["id"]["videoId"]
-    else:
-        return None
+#def get_live_video_id():
+    #youtube = build("youtube", "v3", developerKey=YOUTUBE_API_KEY)
+    #req = youtube.search().list(
+     #   part="id",
+   #     channelId=CHANNEL_ID,
+      #  eventType="live",
+       # type="video"
+    #)
+  #  res = req.execute()
+   # items = res.get("items", [])
+  #  if items:
+       # return items[0]["id"]["videoId"]
+    #else:
+      #  return None
 
 # ==============================
 # 💬 Get live chat ID
 # ==============================
-def get_live_chat_id(video_id):
-    youtube = build("youtube", "v3", developerKey=YOUTUBE_API_KEY)
-    req = youtube.videos().list(part="liveStreamingDetails", id=video_id)
-    res = req.execute()
-    items = res.get("items", [])
-    if items:
-        return items[0]["liveStreamingDetails"].get("activeLiveChatId")
-    else:
-        return None
-
+#def get_live_chat_id(video_id):
+#    youtube = build("youtube", "v3", developerKey=YOUTUBE_API_KEY)
+   # req = youtube.videos().list(part="liveStreamingDetails", id=video_id)
+ #   res = req.execute()
+    #items = res.get("items", [])
+  #  if items:
+  #      return items[0]["liveStreamingDetails"].get("activeLiveChatId")
+  #  else:
+     #   return None
+#
 # ==============================
 # 📩 Send Telegram Message
 # ==============================
@@ -72,13 +72,13 @@ def main():
             time.sleep(300)
             continue
 
-        video_id = VIDEO_ID or get_live_video_id()
-        if not video_id:
-            print("❌ No live video found")
-            time.sleep(60)
-            continue
+       # video_id = VIDEO_ID #or get_live_video_id()
+       # if not video_id:
+           # print("❌ No live video found")
+       #     time.sleep(60)
+           # continue
 
-        live_chat_id = get_live_chat_id(video_id)
+        live_chat_id = VIDEO_ID
         if not live_chat_id:
             print("❌ No live chat found")
             time.sleep(60)
