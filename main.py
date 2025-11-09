@@ -2,7 +2,6 @@ import os
 import time
 from datetime import timedelta, timezone
 IST = timezone(timedelta(hours=5, minutes=30))
-now = datetime.now(IST).hour
 import requests
 from googleapiclient.discovery import build
 
@@ -20,7 +19,7 @@ TARGET_USERNAME = os.getenv("TARGET_USERNAME", "Sunshine 🌞")
 # 🕐 Night time check (9 PM–3 AM)
 # ==============================
 def is_night_time():
-    now = datetime.now().hour
+    now = datetime.now(IST).hour
     return now >= 21 or now < 3
 
 # ==============================
