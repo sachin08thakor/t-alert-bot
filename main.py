@@ -2,6 +2,7 @@ import os
 import time
 from datetime import timedelta, timezone
 IST = timezone(timedelta(hours=5, minutes=30))
+now = datetime.now(IST).hour
 import requests
 from googleapiclient.discovery import build
 
