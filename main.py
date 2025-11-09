@@ -42,15 +42,15 @@ def is_night_time():
 # ==============================
 # 💬 Get live chat ID
 # ==============================
-#def get_live_chat_id(video_id):
-#    youtube = build("youtube", "v3", developerKey=YOUTUBE_API_KEY)
-   # req = youtube.videos().list(part="liveStreamingDetails", id=video_id)
- #   res = req.execute()
-    #items = res.get("items", [])
-  #  if items:
-  #      return items[0]["liveStreamingDetails"].get("activeLiveChatId")
-  #  else:
-     #   return None
+def get_live_chat_id(video_id):
+    youtube = build("youtube", "v3", developerKey=YOUTUBE_API_KEY)
+    req = youtube.videos().list(part="liveStreamingDetails", id=video_id)
+    res = req.execute()
+    items = res.get("items", [])
+    if items:
+        return items[0]["liveStreamingDetails"].get("activeLiveChatId")
+    else:
+        return None
 #
 # ==============================
 # 📩 Send Telegram Message
@@ -72,13 +72,13 @@ def main():
             time.sleep(300)
             continue
 
-       # video_id = VIDEO_ID #or get_live_video_id()
-       # if not video_id:
-           # print("❌ No live video found")
-       #     time.sleep(60)
-           # continue
+       video_id = CHAT_ID #or get_live_video_id()
+        if not video_id:
+            print("❌ No live video found")
+            time.sleep(60)
+            continue
 
-        live_chat_id = CHAT_ID
+        live_chat_id = get_live_chat_id(video_id)
         if not live_chat_id:
             print("❌ No live chat found")
             time.sleep(60)
