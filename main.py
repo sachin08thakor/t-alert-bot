@@ -19,7 +19,7 @@ IST = timezone(timedelta(hours=5, minutes=30))
 # ==============================
 def is_night_time():
     now = datetime.now(IST).hour
-    return now >= 21 or now < 3
+    return now >= 21 or now < 4
 
 # ==============================
 # 🎥 Get live video ID (if not set)
