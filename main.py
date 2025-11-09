@@ -19,7 +19,7 @@ IST = timezone(timedelta(hours=5, minutes=30))
 # ==============================
 def is_night_time():
     now = datetime.now(IST).hour
-    return now >= 21 or now < 4
+    return now >= 21 or now < 5
 
 # ==============================
 # 🎥 Get live video ID (if not set)
@@ -99,6 +99,8 @@ def main():
                     author = item["authorDetails"]["displayName"]
                     if TARGET_USERNAME.lower() in author.lower():
                         send_telegram(f"🌞 {author} just sent a message in live chat!")
+                        alert = f"🌞 {author} sent a message:"
+                        print(alert)
 
                 next_page = res.get("nextPageToken")
                 time.sleep(10)
