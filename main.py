@@ -72,7 +72,7 @@ def main():
             time.sleep(300)
             continue
 
-       video_id = CHAT_ID #or get_live_video_id()
+        video_id = CHAT_ID #or get_live_video_id()
         if not video_id:
             print("❌ No live video found")
             time.sleep(60)
