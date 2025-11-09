@@ -1,99 +1,73 @@
 import os
 import time
-import requests
+from datetime import datetime
 from googleapiclient.discovery import build
+import requests
 
-# 🔹 Environment variables
+# CONFIG
 YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
 CHANNEL_ID = os.getenv("CHANNEL_ID")
-TARGET_USER = os.getenv("TARGET_USER", "Sunshine 🌞")
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
+TARGET_USERNAME = os.getenv("TARGET_USERNAME", "Sunshine 🌞")
 
-# 🔹 Setup YouTube API client
-youtube = build("youtube", "v3", developerKey=YOUTUBE_API_KEY)
+def is_night_time():
+    hour = datetime.now().hour
+    return hour >= 21 or hour < 3
 
-# ✅ Function to send Telegram alert
-def send_telegram_notification(message: str):
-    if not message.strip():
-        return
-    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-    payload = {"chat_id": TELEGRAM_CHAT_ID, "text": message}
-    try:
-        requests.post(url, data=payload)
-    except Exception as e:
-        print("Telegram error:", e)
-
-# ✅ Get live video IDs from the channel
-def get_live_video_ids():
-    response = youtube.search().list(
-        part="id",
-        channelId=CHANNEL_ID,
-        eventType="live",
-        type="video",
-        maxResults=5
+def get_live_chat_id():
+    youtube = build("youtube", "v3", developerKey=YOUTUBE_API_KEY)
+    search = youtube.search().list(
+        part="id", channelId=CHANNEL_ID, eventType="live", type="video"
     ).execute()
-
-    videos = [item["id"]["videoId"] for item in response.get("items", [])]
-    return videos
-
-# ✅ Get the live chat ID from a video
-def get_live_chat_id(video_id):
-    response = youtube.videos().list(
-        part="liveStreamingDetails",
-        id=video_id
-    ).execute()
-
-    items = response.get("items", [])
+    items = search.get("items", [])
     if not items:
+        print("⚠️ No live stream found.")
         return None
-    return items[0]["liveStreamingDetails"].get("activeLiveChatId")
+    video_id = items[0]["id"]["videoId"]
+    video = youtube.videos().list(part="liveStreamingDetails", id=video_id).execute()
+    return video["items"][0]["liveStreamingDetails"].get("activeLiveChatId")
 
-# ✅ Watch live chat for target user
-def monitor_chat(chat_id):
+def get_live_messages(live_chat_id, page_token=None):
+    youtube = build("youtube", "v3", developerKey=YOUTUBE_API_KEY)
+    req = youtube.liveChatMessages().list(
+        liveChatId=live_chat_id, part="snippet,authorDetails", pageToken=page_token
+    )
+    return req.execute()
+
+def send_telegram_message(text):
+    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+    data = {"chat_id": TELEGRAM_CHAT_ID, "text": text}
+    r = requests.post(url, data=data)
+    if not r.ok:
+        print("⚠️ Telegram error:", r.text)
+
+def monitor():
+    print("🚀 Starting YouTube → Telegram Night Monitor")
+    live_chat_id = get_live_chat_id()
+    if not live_chat_id:
+        print("❌ No active chat ID found.")
+        return
     next_page_token = None
     while True:
         try:
-            chat = youtube.liveChatMessages().list(
-                liveChatId=chat_id,
-                part="snippet,authorDetails",
-                pageToken=next_page_token
-            ).execute()
-
-            for msg in chat.get("items", []):
+            if not is_night_time():
+                print("☀️ Sleeping until night hours (9 PM – 3 AM)")
+                time.sleep(300)
+                continue
+            resp = get_live_messages(live_chat_id, next_page_token)
+            next_page_token = resp.get("nextPageToken")
+            for msg in resp.get("items", []):
                 author = msg["authorDetails"]["displayName"]
                 text = msg["snippet"]["displayMessage"]
-                if author.lower() == TARGET_USER.lower():
-                    alert = f"🌞 {author} just chatted:\n{text}"
+                if TARGET_USERNAME.lower() in author.lower():
+                    alert = f"🌞 {author} said: {text}"
                     print(alert)
-                    send_telegram_notification(alert)
-
-            next_page_token = chat.get("nextPageToken")
-            time.sleep(5)
+                    send_telegram_message(alert)
+            time.sleep(15)
         except Exception as e:
-            print("Chat monitor error:", e)
-            time.sleep(10)
-
-# ✅ Main loop (handles multiple live streams)
-def main():
-    print("🔍 Searching for live streams...")
-    while True:
-        videos = get_live_video_ids()
-        if not videos:
-            print("❌ No live videos right now. Checking again in 60s...")
-            time.sleep(60)
-            continue
-
-        for vid in videos:
-            print(f"🎥 Found live video: {vid}")
-            chat_id = get_live_chat_id(vid)
-            if chat_id:
-                print(f"💬 Monitoring live chat {chat_id} for '{TARGET_USER}'...")
-                monitor_chat(chat_id)
-            else:
-                print(f"⚠️ No active chat found for video {vid}")
-
-        time.sleep(60)
+            print("⚠️ Error:", e)
+            time.sleep(30)
 
 if __name__ == "__main__":
-    main()
+    monitor()
