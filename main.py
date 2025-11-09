@@ -1,8 +1,6 @@
 import os
 import time
 from datetime import timedelta, timezone
-IST = timezone(timedelta(hours=5, minutes=30))
-now = datetime.now(IST).hour
 import requests
 from googleapiclient.discovery import build
 
@@ -15,7 +13,7 @@ VIDEO_ID = os.getenv("VIDEO_ID")  # optional
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 TARGET_USERNAME = os.getenv("TARGET_USERNAME", "Sunshine 🌞")
-
+IST = timezone(timedelta(hours=5, minutes=30))
 # ==============================
 # 🕐 Night time check (9 PM–3 AM)
 # ==============================
