@@ -9,7 +9,7 @@ from googleapiclient.discovery import build
 # ==============================
 YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
 CHANNEL_ID = os.getenv("CHANNEL_ID")
-VIDEO_ID = os.getenv("VIDEO_ID")  # optional
+CHAT_ID = os.getenv("CHAT_ID")  # optional
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 TARGET_USERNAME = os.getenv("TARGET_USERNAME", "Sunshine 🌞")
@@ -78,7 +78,7 @@ def main():
        #     time.sleep(60)
            # continue
 
-        live_chat_id = VIDEO_ID
+        live_chat_id = CHAT_ID
         if not live_chat_id:
             print("❌ No live chat found")
             time.sleep(60)
