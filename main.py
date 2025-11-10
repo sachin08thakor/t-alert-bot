@@ -43,7 +43,7 @@ def switch_api_key():
 # ==============================
 def is_active_time():
     now_hour = datetime.now(IST).hour
-    return now_hour >= 23 or now_hour < 2  # 23:00–01:59 IST
+    return now_hour >= 21 or now_hour < 3  # 23:00–01:59 IST
 
 # ==============================
 # 🎥 Get Live Video ID
