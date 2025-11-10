@@ -18,7 +18,10 @@ CHANNEL_ID = os.getenv("CHANNEL_ID")
 CHAT_ID = os.getenv("CHAT_ID")  # optional: predefined live video ID
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
+
+# Multiple usernames (comma separated)
 USERNAMES = os.getenv("TARGET_USER", "Sunshine 🌞, Pallavi Singh")
+TARGET_USERNAMES = [u.strip().lower() for u in USERNAMES.split(",")]
 
 # India Standard Time (UTC +5:30)
 IST = timezone(timedelta(hours=5, minutes=30))
@@ -39,11 +42,11 @@ def switch_api_key():
     print(f"🔁 Switched to YouTube API key #{current_key_index + 1}")
 
 # ==============================
-# 🕐 Active Time (11 PM – 2 AM)
+# 🕐 Active Time (11 PM – 3 AM)
 # ==============================
 def is_active_time():
     now_hour = datetime.now(IST).hour
-    return now_hour >= 21 or now_hour <= 3  # 23:00–01:59 IST
+    return now_hour >= 23 or now_hour < 3  # 23:00–02:59 IST
 
 # ==============================
 # 🎥 Get Live Video ID
@@ -92,7 +95,7 @@ def main():
     youtube = get_youtube()
 
     while True:
-        # Run only in active hours (11 PM–2 AM IST)
+        # Run only in active hours (11 PM–3 AM IST)
         if not is_active_time():
             print("🌞 Outside 11 PM–3 AM — sleeping 5 minutes")
             time.sleep(300)
@@ -121,6 +124,7 @@ def main():
                     pageToken=next_page
                 ).execute()
 
+                # Wait at least 8 seconds between polls
                 polling_interval = max(8, res.get("pollingIntervalMillis", 5000) / 1000)
 
                 for item in res.get("items", []):
@@ -128,7 +132,8 @@ def main():
                     message = item["snippet"]["displayMessage"]
                     now = time.time()
 
-                    if TARGET_USERNAMES = [u.strip().lower() for u in USERNAMES.split(",")]
+                    # Check if message is from a target username
+                    if any(name in author.lower() for name in TARGET_USERNAMES):
                         last_time = last_alert_time.get(author, 0)
                         if now - last_time >= ALERT_GAP:
                             alert_text = f"🌞 {author} sent: {message}"
