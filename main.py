@@ -12,7 +12,7 @@ CHANNEL_ID = os.getenv("CHANNEL_ID")
 CHAT_ID = os.getenv("CHAT_ID")  # optional: predefined live video ID
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
-TARGET_USERNAME = os.getenv("TARGET_USERNAME", "Sai")
+TARGET_USERNAME = os.getenv("TARGET_USERNAME", "Sunshine 🌞")
 
 IST = timezone(timedelta(hours=5, minutes=30))
 ALERT_GAP = 10  # seconds between alerts for the same user
