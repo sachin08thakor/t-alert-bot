@@ -20,7 +20,7 @@ TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
 # Multiple usernames (comma separated)
-USERNAMES = os.getenv("TARGET_USER", "Sunshine 🌞, Pallavi Singh")
+USERNAMES = os.getenv("TARGET_USERNAME", "Sunshine 🌞, Pallavi Singh")
 TARGET_USERNAMES = [u.strip().lower() for u in USERNAMES.split(",")]
 
 # India Standard Time (UTC +5:30)
