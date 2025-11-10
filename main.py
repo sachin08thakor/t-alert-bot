@@ -22,7 +22,7 @@ ALERT_GAP = 10  # seconds between alerts for the same user
 # ==============================
 def is_night_time():
     now_hour = datetime.now(IST).hour
-    return now_hour >= 21 or now_hour < 3
+    return now_hour >= 21 or now_hour < 12
 
 # ==============================
 # 🎥 Get live video ID from channel
