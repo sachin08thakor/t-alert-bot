@@ -22,7 +22,7 @@ ALERT_GAP = 10  # seconds between alerts for the same user
 # ==============================
 def is_night_time():
     now_hour = datetime.now(IST).hour
-    return now_hour >= 21 or now_hour < 6
+    return now_hour >= 21 or now_hour < 12
 
 # ==============================
 # 🎥 Get live video ID from channel
@@ -74,7 +74,7 @@ def main():
             time.sleep(300)
             continue
 
-        video_id = CHAT_ID or get_live_video_id()
+        video_id = CHAT_ID #or #get_live_video_id()
         if not video_id:
             print("❌ No live video found")
             time.sleep(60)
