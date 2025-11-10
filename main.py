@@ -43,7 +43,7 @@ def switch_api_key():
 # ==============================
 def is_active_time():
     now_hour = datetime.now(IST).hour
-    return now_hour >= 21 or now_hour <= 3  # 23:00–01:59 IST
+    return now_hour >= 21 or now_hour <= 13  # 23:00–01:59 IST
 
 # ==============================
 # 🎥 Get Live Video ID
@@ -94,7 +94,7 @@ def main():
     while True:
         # Run only in active hours (11 PM–2 AM IST)
         if not is_active_time():
-            print("🌞 Outside 11 PM–2 AM — sleeping 5 minutes")
+            print("🌞 Outside 11 PM–3 AM — sleeping 5 minutes")
             time.sleep(300)
             continue
 
