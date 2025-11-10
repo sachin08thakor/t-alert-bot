@@ -128,7 +128,7 @@ def main():
                     message = item["snippet"]["displayMessage"]
                     now = time.time()
 
-                    if TARGET_USERNAME.lower() in author.lower():
+                    if TARGET_USERNAMES = [u.strip().lower() for u in USERNAMES.split(",")]
                         last_time = last_alert_time.get(author, 0)
                         if now - last_time >= ALERT_GAP:
                             alert_text = f"🌞 {author} sent: {message}"
